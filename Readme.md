@@ -16,8 +16,8 @@ them will work in a similar way, so it is likely that some minor adaptations of
 the workflow explained here would work with them too.
 
 The goal of this example was, besides testing the cluster infraestucture, to 
-double check the values of the HOMFLY polynomial available in the knot atlas 
-with the implementation available in sage. 
+double check the values of the HOMFLY polynomial available in the [knot 
+atlas](http://katlas.org/) with the implementation available in sage. 
 
 ## Quick start
 
@@ -31,14 +31,14 @@ for 3 nodes with 24 pus each one). With the following software installed:
   - A recent installation of [Sagemath](https://www.sagemath.org) (in 
 particular, some code in our example needs version 7.3beta9 or later). It must 
 have the following optional packages installed too:
-    - [`mpi4py`](https://pythonhosted.org/mpi4py/)- The library that allows 
+      - [`mpi4py`](https://pythonhosted.org/mpi4py/)- The library that allows 
 python to work with the system MPI.
-    - [`libhomfly`](https://github.com/miguelmarco/libhomfly) (this is needed 
+      - [`libhomfly`](https://github.com/miguelmarco/libhomfly) (this is needed 
 for this example, but not in general)
 - The following files for this example (you can adapt them for your particular 
 case):
   - A small acript to tell slurm what resourecs to allocate and which program 
-must be tun (in our case, it is the `batchscript.sh` file.
+must be tun (in our case, it is the `batchscript.sh` file).
   - A file with the sage code you want to run. In our example it is the 
 `script.py` file.
   - Some files with the input data to feed your computations (if needed). In 
@@ -119,7 +119,7 @@ size = comm.size
 the first line imports the whole sage library. That is needed because we are 
 executing a `.py` file passed as a parameter to the sage executable, so it is 
 interpreted as a plain python file. I tried to import only the parts of Sage 
-that I needed, but it turned into problesm with circular dependencies. 
+that I needed, but it turned into problems with circular dependencies. 
 
 Then we import the MPI module, that we need for passing messages bewteen our 
 processes, and set up a `comm` object that will handle that communication. It 
@@ -166,11 +166,13 @@ suitable form:
                 knots[nombre]['homfly'] = hf
 
 ```
-these lines tell this master process to read the file `Rolfsen.rdf` and extract 
-from it the PD codes of the knots and their HOMFLY polynomial. The result is 
-the dictionary `knots` whose keys are the names of the knots, and the data of 
-each node is a text string containing its HOMFLY polynomial and the PD code 
-according to the knot atlas.
+Don't panic if these lines look scary. It is enough to know that it is the 
+part where we read the data file and prepare the information in a structure
+that will be useful later. In more detail, these lines tell this master process
+to read the file `Rolfsen.rdf` and extract from it the PD codes of the knots 
+and their HOMFLY polynomial. The result is the dictionary `knots` whose keys 
+are the names of the knots, and the data of each node is a text string containing
+its HOMFLY polynomial and the PD code according to the knot atlas.
 
 Then we prepare lists of nodes to send works to, and the works to send them:
 
@@ -185,9 +187,9 @@ Then we start by sending one work to each node:
 
 ```python 
     while freenodes: # send first job to each worker
-    tr = works.popitem()
-    nodetosend = freenodes.pop(0)
-    comm.send((tr[0], tr[1]['PD'], tr[1]['homfly']), dest=nodetosend)
+        tr = works.popitem()
+        nodetosend = freenodes.pop(0)
+        comm.send((tr[0], tr[1]['PD'], tr[1]['homfly']), dest=nodetosend)
 ```
 
 The important part here is the last line: it uses the function `comm.send`, 
@@ -198,7 +200,7 @@ execution of the program will be paused here until the corresponding process
 receives the message (which in principle should be almost inmediate, since the 
 other process will ask for this message at the beginning, as we will see later).
 
-Once we have feed all the workers with a program to process, we will get into a 
+Once we have fed all the workers with a program to process, we will get into a 
 loop where we get back the results that the workers send back, and feed them 
 with new works to do if they are available. When we run out of knots to check, 
 we will send a message to the workers telling them to finish:
@@ -219,9 +221,9 @@ we will send a message to the workers telling them to finish:
             unfinishednodes.remove(nodo)
 ```
 note that the loop starts with the function `comm.recv()`, that means that this 
-process will wait until process sends it a message with the result of a 
+process will wait until some process sends it a message with the result of a 
 computation. This message will consist on a tuple with the result of a 
-computation and the number of the work that sent it. If there are still works 
+computation and the number of the process that sent it. If there are still works 
 available, a new work will be sent to the process. Otherwise, the string `End` 
 will be sent to tell it that it must end, and the process will be removed from 
 the list of works that have not finished.
@@ -233,7 +235,7 @@ Finally, when all the works are done, we print the result of the computation:
     print [res for res in results if not res[-1]]    
     print "Finished"
 ```
-In this case, if all went well it should print that there are no cases wqhere 
+In this case, if all went well it should print that there are no cases where 
 the HOMFLY polynomial computed by sage and the one in the knot atlas differ. 
 This messages will be printed to the putput file that we defined in the slurm 
 script.
@@ -247,7 +249,7 @@ under the case:
 else:
 ```
 
-We start setting up some objest that will be needed in the computation:
+We start setting up some objects that will be needed in the computation:
 
 ```python
     from sage.misc.parser import Parser
@@ -259,7 +261,7 @@ We start setting up some objest that will be needed in the computation:
 In particular a Laurent polynomial ring where our HOMFLY polynomials will live 
 (note that it wasn't defined with the `R.<a,z> = LaurentPolynomialRing(ZZ)` 
 syntax, since we are running a `py` file, and hence there is no sage preparsing 
-going on. Then we define a parser that will convert the test strings into 
+going on). Then we define a parser that will convert the test strings into 
 polynomials in this ring.
 
 The next block is the main loop of the worker:
