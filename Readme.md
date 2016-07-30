@@ -11,7 +11,7 @@ support mpi, like plane python, custom .c code and so on. But for the sake of
 clarity, in this document we will restrict ourselves to this particular example 
 that involves sage.
 
-I have no experience with other workload mangers, but I imagine that most of 
+I have no experience with other workload managers, but I imagine that most of 
 them will work in a similar way, so it is likely that some minor adaptations of 
 the workflow explained here would work with them too.
 
