@@ -37,8 +37,8 @@ python to work with the system MPI.
 for this example, but not in general)
 - The following files for this example (you can adapt them for your particular 
 case):
-  - A small acript to tell slurm what resourecs to allocate and which program 
-must be tun (in our case, it is the `batchscript.sh` file).
+  - A small script to tell slurm what resources to allocate and which program 
+must be run (in our case, it is the `batchscript.sh` file).
   - A file with the sage code you want to run. In our example it is the 
 `script.py` file.
   - Some files with the input data to feed your computations (if needed). In 
